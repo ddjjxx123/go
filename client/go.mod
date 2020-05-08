@@ -1,2 +1,3 @@
-module github.com/ddjjxx123/go/blob/master/client
+module github.com/ddjjxx123/go/client
+
 go 1.14
