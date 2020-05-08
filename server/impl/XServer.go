@@ -1,8 +1,9 @@
 package impl
 
 import (
-	"alexhades.com/go/server"
+	"errors"
 	"fmt"
+	"github.com/ddjjxx123/go/server"
 	"net"
 	"time"
 )
@@ -15,7 +16,7 @@ type XServer struct {
 }
 
 func (s *XServer) Start() {
-	fmt.Printf("Start Serve IP%s:%d \n", s.IPAddr, s.Port)
+	fmt.Printf("Start Serve IP %s:%d \n", s.IPAddr, s.Port)
 
 	//创建连接
 	go func() {
@@ -31,32 +32,29 @@ func (s *XServer) Start() {
 			return
 		}
 
-		//监听
-		tcpConn, err := listener.AcceptTCP()
-		if err != nil {
-			fmt.Println("Accept TCP Err", err)
-			return
-		}
+		var connId int32 = CreateConnId()
 
-		go func() {
-			for {
-				buf := make([]byte, 512)
-				//读
-				read, err := tcpConn.Read(buf)
-				if err != nil {
-					fmt.Println("Read Connection Err", err)
-					continue
-				}
-				//写
-				if _, err := tcpConn.Write(buf[:read]); err != nil {
-					fmt.Println("Write Err", err)
-					continue
-				}
-
+		for {
+			//监听
+			tcpConn, err := listener.AcceptTCP()
+			if err != nil {
+				fmt.Println("Accept TCP Err", err)
+				return
 			}
-		}()
+
+			connection := CreateConnection(tcpConn, connId, HandleApi)
+			connId++
+			//开启连接
+			go connection.Start()
+
+		}
 	}()
 
+}
+
+func CreateConnId() int32 {
+	//TODO
+	return 0
 }
 func (s *XServer) Stop() {
 
@@ -76,4 +74,13 @@ func CreateServer(name string) server.IXServer {
 		Port:      8888,
 	}
 	return s
+}
+
+func HandleApi(conn *net.TCPConn, data []byte, cnt int) error {
+	//回显业务
+	if _, err := conn.Write(data[:cnt]); err != nil {
+		fmt.Println("write back buf err ", err)
+		return errors.New("CallBackToClient error")
+	}
+	return nil
 }

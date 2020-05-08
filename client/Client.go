@@ -2,15 +2,14 @@ package main
 
 import (
 	"fmt"
-	"github.com/ddjjxx123/go"
-	"github.com/ddjjxx123/go/blob/master/server/impl"
 	"net"
+	"strings"
 	"time"
 )
 
 func main() {
 	go test()
-	impl.CreateServer("XServer1").Serve()
+	time.Sleep(30 * time.Second)
 }
 
 func test() {
@@ -21,10 +20,12 @@ func test() {
 		return
 	}
 	for i := 0; i < 100; i++ {
-		conn.Write([]byte(fmt.Sprintf("Test Test %d", i)))
+
+		conn.Write([]byte(strings.TrimSpace(fmt.Sprintf("Test Test %d", i))))
 		buf := make([]byte, 512)
 		read, _ := conn.Read(buf)
-		fmt.Printf("Response=%s read=%d \n", buf, read)
+
+		fmt.Printf("Response=%s read=%d\n", buf[:read], read)
 		time.Sleep(100 * time.Millisecond)
 	}
 }
