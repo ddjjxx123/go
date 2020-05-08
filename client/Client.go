@@ -1,8 +1,8 @@
 package main
 
 import (
-	"alexhades.com/go/server/impl"
 	"fmt"
+	"github.com/ddjjxx123/go/blob/master/server/impl"
 	"net"
 	"time"
 )
