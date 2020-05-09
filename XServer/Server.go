@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/ddjjxx123/go/server"
-	"github.com/ddjjxx123/go/server/impl"
+	"github.com/ddjjxx123/go/x-server/server"
+	"github.com/ddjjxx123/go/x-server/server/impl"
 )
 
 type TestRouter struct {

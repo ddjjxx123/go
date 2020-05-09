@@ -2,7 +2,7 @@ package impl
 
 import (
 	"fmt"
-	"github.com/ddjjxx123/go/server"
+	"github.com/ddjjxx123/go/x-server/server"
 	"net"
 	"time"
 )

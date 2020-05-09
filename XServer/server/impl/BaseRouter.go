@@ -1,6 +1,6 @@
 package impl
 
-import "github.com/ddjjxx123/go/server"
+import "github.com/ddjjxx123/go/x-server/server"
 
 type BaseRouter struct {
 }
