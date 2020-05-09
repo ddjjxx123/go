@@ -8,9 +8,9 @@ type IXConnection interface {
 	//关闭连接
 	Stop()
 	//获取连接
-	GetConnection() net.TCPConn
+	GetConnection() *net.TCPConn
 	//获取连接ID
-	GetConnectionId() int32
+	GetConnectionId() uint32
 	//获取客户端地址
 	GetRemoteAddr() net.Addr
 }

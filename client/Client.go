@@ -9,7 +9,7 @@ import (
 
 func main() {
 	go test()
-	time.Sleep(30 * time.Second)
+	time.Sleep(5 * time.Second)
 }
 
 func test() {
@@ -19,7 +19,7 @@ func test() {
 		fmt.Println("Connection Err", err)
 		return
 	}
-	for i := 0; i < 100; i++ {
+	for i := 0; i < 10; i++ {
 
 		conn.Write([]byte(strings.TrimSpace(fmt.Sprintf("Test Test %d", i))))
 		buf := make([]byte, 512)

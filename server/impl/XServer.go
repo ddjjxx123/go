@@ -1,20 +1,18 @@
 package impl
 
 import (
-	"errors"
 	"fmt"
 	"github.com/ddjjxx123/go/server"
 	"net"
 	"time"
 )
 
-const ()
-
 type XServer struct {
 	Name      string
 	IPVersion string
 	IPAddr    string
 	Port      int
+	Router    server.IXRouter
 }
 
 func (s *XServer) Start() {
@@ -34,7 +32,7 @@ func (s *XServer) Start() {
 			return
 		}
 
-		var connId int32 = CreateConnId()
+		var connId = CreateConnId()
 
 		for {
 			//监听
@@ -44,7 +42,7 @@ func (s *XServer) Start() {
 				return
 			}
 
-			connection := CreateConnection(tcpConn, connId, HandleApi)
+			connection := CreateConnection(tcpConn, connId, s.Router)
 			connId++
 			//开启连接
 			go connection.Start()
@@ -54,7 +52,7 @@ func (s *XServer) Start() {
 
 }
 
-func CreateConnId() int32 {
+func CreateConnId() uint32 {
 	//TODO
 	return 0
 }
@@ -68,6 +66,10 @@ func (s *XServer) Serve() {
 	}
 }
 
+func (s *XServer) AddRouter(router server.IXRouter) {
+	s.Router = router
+}
+
 func CreateServer(name string) server.IXServer {
 	s := &XServer{
 		Name:      name,
@@ -76,13 +78,4 @@ func CreateServer(name string) server.IXServer {
 		Port:      8888,
 	}
 	return s
-}
-
-func HandleApi(conn *net.TCPConn, data []byte, cnt int) error {
-	//回显业务
-	if _, err := conn.Write(data[:cnt]); err != nil {
-		fmt.Println("write back buf err ", err)
-		return errors.New("CallBackToClient error")
-	}
-	return nil
 }

@@ -10,11 +10,11 @@ type XConnection struct {
 	//连接套接字
 	Coon *net.TCPConn
 	//sessionId
-	CoonId int32
+	CoonId uint32
 	//关闭标识
 	IsClose bool
-	//业务处理api
-	HandApi server.HandleFunc
+	//路由
+	Router server.IXRouter
 	//传输标识通道
 	ExitChan chan bool
 }
@@ -26,21 +26,30 @@ func (conn *XConnection) StartingReader() {
 	//读取数据
 	for {
 		buf := make([]byte, 512)
-		read, err := conn.GetConnection().Read(buf)
+		_, err := conn.GetConnection().Read(buf)
 		if err != nil {
 			fmt.Println("Read Connection Err", err)
 			//读取错误告诉连接关闭
 			conn.ExitChan <- true
 			continue
 		}
-		//读取正确执行业务api
-		if conn.HandApi(conn.Coon, buf, read) != nil {
-			fmt.Println("Hand Api Err", err)
-			//关闭连接
-			conn.ExitChan <- true
-			return
+		request := XRequest{
+			Coon: conn,
+			Data: buf,
 		}
+		//执行业务方法
+		go func(xRequest server.IXRequest) {
+			conn.Router.PreHandle(xRequest)
+			conn.Router.Handle(xRequest)
+			conn.Router.PostHandle(xRequest)
+		}(&request)
+
 	}
+}
+
+func CreateConnection(conn *net.TCPConn, coonId uint32, router server.IXRouter) *XConnection {
+	fmt.Printf("Create Connection RemoteAddr:%s CoonId:%d\n", conn.RemoteAddr().String(), coonId)
+	return &XConnection{Coon: conn, CoonId: coonId, IsClose: false, Router: router, ExitChan: make(chan bool, 1)}
 }
 
 func (conn *XConnection) Start() {
@@ -72,15 +81,10 @@ func (conn *XConnection) Stop() {
 func (conn *XConnection) GetConnection() *net.TCPConn {
 	return conn.Coon
 }
-func (conn *XConnection) GetConnectionId() int32 {
+func (conn *XConnection) GetConnectionId() uint32 {
 	return conn.CoonId
 
 }
 func (conn *XConnection) GetRemoteAddr() net.Addr {
 	return conn.Coon.RemoteAddr()
-}
-
-func CreateConnection(conn *net.TCPConn, coonId int32, handleApi server.HandleFunc) *XConnection {
-	fmt.Printf("Create Connection RemoteAddr:%s CoonId:%d\n", conn.RemoteAddr().String(), coonId)
-	return &XConnection{Coon: conn, CoonId: coonId, IsClose: false, HandApi: handleApi, ExitChan: make(chan bool, 1)}
 }

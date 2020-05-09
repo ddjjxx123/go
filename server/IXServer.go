@@ -7,4 +7,6 @@ type IXServer interface {
 	Stop()
 	//开始服务
 	Serve()
+	//添加路由
+	AddRouter(router IXRouter)
 }
