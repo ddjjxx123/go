@@ -14,7 +14,8 @@ func main() {
 
 func test() {
 	time.Sleep(3 * time.Second)
-	conn, err := net.Dial("tcp", "127.0.0.1:8888")
+
+	conn, err := net.Dial("tcp", "127.0.0.1:9999")
 	if err != nil {
 		fmt.Println("Connection Err", err)
 		return

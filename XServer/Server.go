@@ -38,7 +38,7 @@ func (router *TestRouter) PostHandle(request server.IXRequest) {
 }
 
 func main() {
-	ixServer := impl.CreateServer("X-Server")
+	ixServer := impl.CreateServer()
 	ixServer.AddRouter(&TestRouter{})
 	ixServer.Serve()
 

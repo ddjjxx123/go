@@ -2,6 +2,7 @@ package impl
 
 import (
 	"fmt"
+	"github.com/ddjjxx123/go/x-server/config"
 	"github.com/ddjjxx123/go/x-server/server"
 	"net"
 	"time"
@@ -70,12 +71,13 @@ func (s *XServer) AddRouter(router server.IXRouter) {
 	s.Router = router
 }
 
-func CreateServer(name string) server.IXServer {
+func CreateServer() server.IXServer {
+	config.Init()
 	s := &XServer{
-		Name:      name,
+		Name:      config.GlobalServerObject.HostName,
 		IPVersion: "tcp",
-		IPAddr:    "127.0.0.1",
-		Port:      8888,
+		IPAddr:    config.GlobalServerObject.Host,
+		Port:      config.GlobalServerObject.Port,
 	}
 	return s
 }
