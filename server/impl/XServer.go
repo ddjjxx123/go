@@ -8,6 +8,8 @@ import (
 	"time"
 )
 
+const ()
+
 type XServer struct {
 	Name      string
 	IPVersion string
