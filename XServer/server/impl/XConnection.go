@@ -1,8 +1,10 @@
 package impl
 
 import (
+	"errors"
 	"fmt"
 	"github.com/ddjjxx123/go/x-server/server"
+	"io"
 	"net"
 )
 
@@ -17,6 +19,7 @@ type XConnection struct {
 	Router server.IXRouter
 	//传输标识通道
 	ExitChan chan bool
+	IsClosed bool
 }
 
 func (conn *XConnection) StartingReader() {
@@ -33,9 +36,36 @@ func (conn *XConnection) StartingReader() {
 			conn.ExitChan <- true
 			continue
 		}
+
+		dataPack := CreateDataPack()
+
+		//读取头信息
+		header := make([]byte, dataPack.GetHeaderLength())
+		if _, err := io.ReadFull(conn.GetConnection(), header); err != nil {
+			fmt.Println("Read Head Err", err)
+			break
+		}
+
+		//拿到连接，拆包拿到MSG
+		message, err := dataPack.UnPack(header)
+		if err != nil {
+			fmt.Println("UnPack Err", err)
+			break
+		}
+		//放入数据
+		var data []byte
+		if message.GetDataSize() > 0 {
+			data := make([]byte, message.GetDataSize())
+			if _, err := io.ReadFull(conn.GetConnection(), data); err != nil {
+				fmt.Println("Read Data Err", err)
+				break
+			}
+		}
+		//放入数据
+		message.SetData(data)
 		request := XRequest{
-			Coon: conn,
-			Data: buf,
+			Coon:    conn,
+			Message: message,
 		}
 		//执行业务方法
 		go func(xRequest server.IXRequest) {
@@ -87,4 +117,25 @@ func (conn *XConnection) GetConnectionId() uint32 {
 }
 func (conn *XConnection) GetRemoteAddr() net.Addr {
 	return conn.Coon.RemoteAddr()
+}
+func (conn *XConnection) SendMessage(msgId uint32, data []byte) error {
+	if conn.IsClosed == true {
+		return errors.New("Connection closed when send msg")
+	}
+	//将data封包，并且发送
+	dataPack := CreateDataPack()
+	msg, err := dataPack.Pack(CreateXMessage(msgId, data))
+	if err != nil {
+		fmt.Println("Pack error msg id = ", msgId)
+		return errors.New("Pack error msg ")
+	}
+
+	//写回客户端
+	if _, err := conn.Coon.Write(msg); err != nil {
+		fmt.Println("Write msg id ", msgId, " error ")
+		conn.ExitChan <- true
+		return errors.New("conn Write error")
+	}
+
+	return nil
 }

@@ -13,6 +13,8 @@ type IXConnection interface {
 	GetConnectionId() uint32
 	//获取客户端地址
 	GetRemoteAddr() net.Addr
+	//封包Message
+	SendMessage(msgId uint32, data []byte) error
 }
 
 //统一业务处理

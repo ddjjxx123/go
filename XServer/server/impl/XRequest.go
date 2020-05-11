@@ -3,8 +3,8 @@ package impl
 import "github.com/ddjjxx123/go/x-server/server"
 
 type XRequest struct {
-	Coon server.IXConnection
-	Data []byte
+	Coon    server.IXConnection
+	Message server.IXMessage
 }
 
 func (request *XRequest) GetConnection() server.IXConnection {
@@ -12,5 +12,5 @@ func (request *XRequest) GetConnection() server.IXConnection {
 }
 
 func (request *XRequest) GetData() []byte {
-	return request.Data
+	return request.Message.GetData()
 }

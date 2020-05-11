@@ -12,7 +12,7 @@ type XServerObject struct {
 	Port        int             //当前服务器主机监听端口号
 	HostName    string          //当前服务器名称
 	Version     string          //当前版本号
-	MaxDataSize int             //数据包的最大值
+	MaxDataSize uint32          //数据包的最大值
 	MaxConn     int             //当前服务器主机允许的最大链接个数
 }
 
